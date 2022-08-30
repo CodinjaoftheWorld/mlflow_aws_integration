@@ -14,7 +14,8 @@ from sklearn.linear_model import ElasticNet
 from urllib.parse import urlparse
 import mlflow
 import mlflow.sklearn
-
+from from_root import from_root
+from utils.sagemaker_integration import upload
 import logging
 
 logging.basicConfig(level=logging.WARN)
@@ -86,3 +87,17 @@ if __name__ == "__main__":
             mlflow.sklearn.log_model(lr, "model", registered_model_name="ElasticnetWineModel")
         else:
             mlflow.sklearn.log_model(lr, "model")
+
+
+        try:
+            if input("Push Model to s3 (Y or N): ") == 'Y':
+                runs = os.path.join(from_root(), 'mlruns/')
+                print("Path to mlruns Exists :", os.path.exists(runs))
+                status = upload(s3_bucket_name='mlops-s3-002', mlruns_direc=runs)
+                print(status)
+
+        except Exception as e:
+            print(f"Error occured: {e.__str__()}")
+
+
+    
